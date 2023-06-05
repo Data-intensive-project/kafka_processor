@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public class Main {
 
-    public static final String INTEGER_TOPIC_NAME = "test7";
+    public static final String INTEGER_TOPIC_NAME = "test20";
 
     static KafkaProducer<Integer,String> producer;
     public static Properties createProperties() {
@@ -51,22 +51,29 @@ public class Main {
         final StreamsBuilder builder = new StreamsBuilder();
         KStream<Integer, String> stream = builder.stream(INTEGER_TOPIC_NAME);
         stream.foreach((key, value)-> {
-            System.out.println(value);
+            
             Message message = convertStringToMessage(value);
             if (message.getWeather().getHumidity()>70){
                 ProducerRecord<Integer, String> record = new ProducerRecord<>("topic4",2,
-                        value);
+                        "humidity over 70");
                     producer.send(record);
-                System.out.println("over fifty");
 
+                System.out.println("over 70");
             }
+                ProducerRecord<Integer, String> record = new ProducerRecord<>("test21",2,
+                        value);
+                producer.send(record);
+
         });
-        //send to topic
-        stream.to("test8");
 
         return builder.build();
     }
     public static void main(String[]args){
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         Properties props = createProperties();
 
         final Topology topology = createTopology();
@@ -79,6 +86,7 @@ public class Main {
         props1.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());
         props1.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         producer = new KafkaProducer<>(props1);
+
         Runtime.getRuntime().addShutdownHook(new Thread("z") {
             @Override
             public void run() {
