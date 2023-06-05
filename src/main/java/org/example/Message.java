@@ -3,7 +3,7 @@ package org.example;
 import java.io.*;
 
 public class Message implements Serializable {
-    long station_id;
+    long station_id ;
     long s_no;
     String battery_status;
     long status_timestamp;
